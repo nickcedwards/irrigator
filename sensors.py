@@ -42,10 +42,17 @@ class ADS1263ADC:
                 values.append( self.reference*2 - ADC_Value[i] * self.reference / 0x8000000 )
             else:
                 values.append( ADC_Value[i] * self.reference / 0x7fffffff )
+        return zip(values, ADC_Value)
 
         ADC.ADS1263_Exit()
 
-def Voltage
+class VoltageDivider:
+    def __init__(self, r1, r2):
+        self.r1 = r1
+        self.r2 - r2
+    
+    def voltage(self, vin):
+        return vin * (self.r1 + self.r2)/self.r1
 
 
 class DS18B20:

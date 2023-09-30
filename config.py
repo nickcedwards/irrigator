@@ -6,3 +6,8 @@ VBAT_ADC_CHANNEL = 1
 VBAT_R1 = 66_000
 VBAT_R2 = 33_000
 
+DHT22_PIN = 4
+
+DB = 'irrigator.db'
+READINGS_TABLE = 'readings'
+
