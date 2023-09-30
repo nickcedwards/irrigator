@@ -17,7 +17,7 @@ class DHT22TemperatureHumiditySensor:
         # Try to grab a sensor reading.  Use the read_retry method which will retry up
         # to 15 times to get a sensor reading (waiting 2 seconds between each retry).
         humidity, temperature = Adafruit_DHT.read_retry(self.sensor, self.pin)
-        return (humidity, temperature)
+        return (temperature, humidity)
 
 class ADS1263ADC:
     def __init__(self, reference, channels):
@@ -28,31 +28,31 @@ class ADS1263ADC:
     def read(self):
         # The faster the rate, the worse the stability
         # and the need to choose a suitable digital filter(REG_MODE1)
-        if (ADC.ADS1263_init_ADC1('ADS1263_400SPS') == -1):
+        if (self.ADC.ADS1263_init_ADC1('ADS1263_400SPS') == -1):
             exit()
-        ADC.ADS1263_SetMode(0) # 0 is singleChannel, 1 is diffChannel
+        self.ADC.ADS1263_SetMode(0) # 0 is singleChannel, 1 is diffChannel
 
         # ADC.ADS1263_DAC_Test(1, 1)      # Open IN6
         # ADC.ADS1263_DAC_Test(0, 1)      # Open IN7
 
         values = []
-        ADC_Value = ADC.ADS1263_GetAll(self.channels)    # get ADC1 value
-        for i in self.channels:
+        ADC_Value = self.ADC.ADS1263_GetAll(self.channels)    # get ADC1 value
+        for i, channel in enumerate(self.channels):
             if(ADC_Value[i]>>31 ==1):
                 values.append( self.reference*2 - ADC_Value[i] * self.reference / 0x8000000 )
             else:
                 values.append( ADC_Value[i] * self.reference / 0x7fffffff )
-        return zip(values, ADC_Value)
+        self.ADC.ADS1263_Exit()
+        return list(zip(values, ADC_Value))
 
-        ADC.ADS1263_Exit()
 
 class VoltageDivider:
-    def __init__(self, r1, r2):
-        self.r1 = r1
-        self.r2 - r2
+    def __init__(self, rlow, rhigh):
+        self.rlow = rlow
+        self.rhigh = rhigh
     
     def voltage(self, vin):
-        return vin * (self.r1 + self.r2)/self.r1
+        return vin * (self.rlow + self.rhigh)/self.rlow
 
 
 class DS18B20:

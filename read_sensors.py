@@ -13,10 +13,12 @@ args = parser.parse_args()
 
 
 adc = ADS1263ADC(config.ADC_VREF, (config.VBAT_ADC_CHANNEL,))
-divider = VoltageDivider(config.VBAT_R1, config.VBAT_R2)
+divider = VoltageDivider(config.VBAT_RLOW, config.VBAT_RHIGH)
 temp_humidity = DHT22TemperatureHumiditySensor(config.DHT22_PIN)
 
-vsense, vbat_raw = adc.read()
+values = adc.read()
+vsense = values[0][0]
+vbat_raw  = values[0][1]
 vbat = divider.voltage(vsense)
 
 # First few readings always seem a bit off
@@ -31,7 +33,10 @@ if args.verbose:
 
 con = sqlite3.connect(config.DB)
 cur = con.cursor()
-cur.execute(f"INSERT INTO {config.READINGS_TABLE} VALUES ({time.isoformat()}, {temp}, {humidity}, {vbat_raw}, {vbat})")
+insert_sql = f"INSERT INTO {config.READINGS_TABLE} VALUES (\"{time}\", {temp}, {humidity}, {vbat_raw}, {vbat})"
+if args.verbose:
+    print(insert_sql)
+cur.execute(insert_sql)
 con.commit()
 con.close()
 

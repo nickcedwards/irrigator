@@ -27,7 +27,7 @@
 # THE SOFTWARE.
 #
 
-import config
+from . import config
 import RPi.GPIO as GPIO
 
 # gain
@@ -242,30 +242,22 @@ class ADS1263:
         MODE2 = 0x80    # 0x80:PGA bypassed, 0x00:PGA enabled
         MODE2 |= (gain << 4) | drate
         self.ADS1263_WriteReg(ADS1263_REG['REG_MODE2'], MODE2)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_MODE2'])[0] == MODE2):
-            print("REG_MODE2 success")
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_MODE2'])[0] == MODE2:
             print("REG_MODE2 unsuccess")
 
         REFMUX = 0x24   # 0x00:+-2.5V as REF, 0x24:VDD,VSS as REF
         self.ADS1263_WriteReg(ADS1263_REG['REG_REFMUX'], REFMUX)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_REFMUX'])[0] == REFMUX):
-            print("REG_REFMUX success")
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_REFMUX'])[0] == REFMUX:
             print("REG_REFMUX unsuccess")
             
         MODE0 = ADS1263_DELAY['ADS1263_DELAY_35us']
         self.ADS1263_WriteReg(ADS1263_REG['REG_MODE0'], MODE0)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_MODE0'])[0] == MODE0):
-            print("REG_MODE0 success")
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_MODE0'])[0] == MODE0:
             print("REG_MODE0 unsuccess")
 
         MODE1 = 0x84    # Digital Filter; 0x84:FIR, 0x64:Sinc4, 0x44:Sinc3, 0x24:Sinc2, 0x04:Sinc1
         self.ADS1263_WriteReg(ADS1263_REG['REG_MODE1'], MODE1)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_MODE1'])[0] == MODE1):
-            print("REG_MODE1 success")
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_MODE1'])[0] == MODE1:
             print("REG_MODE1 unsuccess")
 
     #The configuration parameters of ADC2, gain and data rate
@@ -273,16 +265,12 @@ class ADS1263:
         ADC2CFG = 0x20          # REF, 0x20:VAVDD and VAVSS, 0x00:+-2.5V
         ADC2CFG |= (drate << 6) | gain
         self.ADS1263_WriteReg(ADS1263_REG['REG_ADC2CFG'], ADC2CFG)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_ADC2CFG'])[0] == ADC2CFG):
-            print("REG_ADC2CFG success")
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_ADC2CFG'])[0] == ADC2CFG:
             print("REG_ADC2CFG unsuccess")
             
         MODE0 = ADS1263_DELAY['ADS1263_DELAY_35us']
         self.ADS1263_WriteReg(ADS1263_REG['REG_MODE0'], MODE0)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_MODE0'])[0] == MODE0):
-            print("REG_MODE0 success")
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_MODE0'])[0] == MODE0:
             print("REG_MODE0 unsuccess")
             
 
@@ -292,10 +280,7 @@ class ADS1263:
             return 0
         INPMUX = (Channal << 4) | 0x0a
         self.ADS1263_WriteReg(ADS1263_REG['REG_INPMUX'], INPMUX)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_INPMUX'])[0] == INPMUX):
-            # print("REG_INPMUX success")
-            pass
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_INPMUX'])[0] == INPMUX:
             print("REG_INPMUX unsuccess")
 
 
@@ -305,10 +290,7 @@ class ADS1263:
             return 0
         INPMUX = (Channal << 4) | 0x0a
         self.ADS1263_WriteReg(ADS1263_REG['REG_ADC2MUX'], INPMUX)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_ADC2MUX'])[0] == INPMUX):
-            # print("REG_ADC2MUX success")
-            pass
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_ADC2MUX'])[0] == INPMUX:
             print("REG_ADC2MUX unsuccess")
             
 
@@ -325,10 +307,7 @@ class ADS1263:
         elif Channal == 4:
             INPMUX = (8<<4) | 9     #DiffChannal    AIN8-AIN9
         self.ADS1263_WriteReg(ADS1263_REG['REG_INPMUX'], INPMUX)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_INPMUX'])[0] == INPMUX):
-            # print("REG_INPMUX success")
-            pass
-        else:
+        if not self.ADS1263_ReadData(ADS1263_REG['REG_INPMUX'])[0] == INPMUX:
             print("REG_INPMUX unsuccess")
             
 
@@ -345,10 +324,7 @@ class ADS1263:
         elif Channal == 4:
             INPMUX = (8<<4) | 9     #DiffChannal    AIN8-AIN9
         self.ADS1263_WriteReg(ADS1263_REG['REG_ADC2MUX'], INPMUX)
-        if(self.ADS1263_ReadData(ADS1263_REG['REG_ADC2MUX'])[0] == INPMUX):
-            # print("REG_ADC2MUX success")
-            pass
-        else:
+        if self.ADS1263_ReadData(ADS1263_REG['REG_ADC2MUX'])[0] == INPMUX:
             print("REG_ADC2MUX unsuccess")
             
 
@@ -358,9 +334,7 @@ class ADS1263:
             return -1
         self.ADS1263_reset()
         id = self.ADS1263_ReadChipID()
-        if id == 0x01 :
-            print("ID Read success  ")
-        else:
+        if not id == 0x01 :
             print("ID Read failed   ")
             return -1
         self.ADS1263_WriteCmd(ADS1263_CMD['CMD_STOP1'])
@@ -375,9 +349,7 @@ class ADS1263:
             return -1
         self.ADS1263_reset()
         id = self.ADS1263_ReadChipID()
-        if id == 0x01 :
-            print("ID Read success  ")
-        else:
+        if not id == 0x01 :
             print("ID Read failed   ")
             return -1
         self.ADS1263_WriteCmd(ADS1263_CMD['CMD_STOP2'])
