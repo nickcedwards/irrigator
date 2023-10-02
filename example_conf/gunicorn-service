@@ -1,0 +1,11 @@
+[Unit]
+Description=A Gunicorn example to serve Flask project
+After=network.target
+[Service]
+User=pi
+Group=www-data
+WorkingDirectory=/home/pi/irrigator/
+Environment="PATH=/home/pi/.local/bin/"
+ExecStart=/home/pi/.local/bin/gunicorn --workers 3 --bind unix:/home/pi/irrigator/flaskapp.sock -m 007 wsgi:app
+[Install]
+WantedBy=multi-user.target
