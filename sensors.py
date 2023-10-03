@@ -21,28 +21,23 @@ class DHT22TemperatureHumiditySensor:
 
 class ADS1263ADC:
     def __init__(self, reference, channels):
-        self.ADC = ADS1263.ADS1263()
         self.reference = reference
         self.channels = channels
 
     def read(self):
+        adc = ADS1263.ADS1263()
+        adc.ADS1263_SetMode(0) # 0 is singleChannel, 1 is diffChannel
+        values = []
         # The faster the rate, the worse the stability
         # and the need to choose a suitable digital filter(REG_MODE1)
-        if (self.ADC.ADS1263_init_ADC1('ADS1263_400SPS') == -1):
-            exit()
-        self.ADC.ADS1263_SetMode(0) # 0 is singleChannel, 1 is diffChannel
-
-        # ADC.ADS1263_DAC_Test(1, 1)      # Open IN6
-        # ADC.ADS1263_DAC_Test(0, 1)      # Open IN7
-
-        values = []
-        ADC_Value = self.ADC.ADS1263_GetAll(self.channels)    # get ADC1 value
-        for i, channel in enumerate(self.channels):
-            if(ADC_Value[i]>>31 ==1):
-                values.append( self.reference*2 - ADC_Value[i] * self.reference / 0x8000000 )
-            else:
-                values.append( ADC_Value[i] * self.reference / 0x7fffffff )
-        self.ADC.ADS1263_Exit()
+        if (adc.ADS1263_init_ADC2('ADS1263_ADC2_400SPS') != -1):
+            ADC_Value = adc.ADS1263_GetAll_ADC2()
+            for i, channel in enumerate(self.channels):
+                if(ADC_Value[channel]>>23 ==1):
+                    values.append( self.reference*2 - ADC_Value[i] * self.reference / 0x80000 )
+                else:
+                    values.append( ADC_Value[i] * self.reference / 0x7fffff )
+        adc.ADS1263_Exit()
         return list(zip(values, ADC_Value))
 
 
