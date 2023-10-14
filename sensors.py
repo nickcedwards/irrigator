@@ -23,21 +23,21 @@ class ADS1263ADC:
     def __init__(self, reference, channels):
         self.reference = reference
         self.channels = channels
+        self.adc = ADS1263.ADS1263()
+        self.adc.ADS1263_SetMode(0) # 0 is singleChannel, 1 is diffChannel
+        self.ok = (self.adc.ADS1263_init_ADC2('ADS1263_ADC2_400SPS') != -1)
 
     def read(self):
-        adc = ADS1263.ADS1263()
-        adc.ADS1263_SetMode(0) # 0 is singleChannel, 1 is diffChannel
         values = []
         # The faster the rate, the worse the stability
         # and the need to choose a suitable digital filter(REG_MODE1)
-        if (adc.ADS1263_init_ADC2('ADS1263_ADC2_400SPS') != -1):
-            ADC_Value = adc.ADS1263_GetAll_ADC2()
+        if self.ok:
+            ADC_Value = self.adc.ADS1263_GetAll_ADC2()
             for i, channel in enumerate(self.channels):
                 if(ADC_Value[channel]>>23 ==1):
                     values.append( self.reference*2 - ADC_Value[i] * self.reference / 0x80000 )
                 else:
                     values.append( ADC_Value[i] * self.reference / 0x7fffff )
-        adc.ADS1263_Exit()
         return list(zip(values, ADC_Value))
 
 
