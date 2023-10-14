@@ -1,6 +1,6 @@
 import sqlite3
 import config
-from flask import Flask
+from flask import Flask, jsonify
 import jinja2
 
 templateLoader = jinja2.FileSystemLoader( searchpath="." )
@@ -20,8 +20,17 @@ def get_latest():
 
 
 @app.route('/')
-def hello_world():
+def main():
     return get_latest()
+
+@app.route('/data')
+def data():
+    con = sqlite3.connect(config.DB)
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    cur.execute("SELECT * FROM readings WHERE timestamp > datetime('now' , '-7 days');")
+    result = cur.fetchall()
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
