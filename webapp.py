@@ -29,7 +29,7 @@ def data():
     con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.execute("SELECT * FROM readings WHERE timestamp > datetime('now' , '-7 days');")
-    result = cur.fetchall()
+    result = [{k:row[k] for k in row.keys()} for row in cur.fetchall()]
     return jsonify(result)
 
 if __name__ == '__main__':
