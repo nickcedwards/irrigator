@@ -30,7 +30,9 @@ def data():
     cur = con.cursor()
     cur.execute("SELECT * FROM readings WHERE timestamp > datetime('now' , '-7 days');")
     result = [{k:row[k] for k in row.keys()} for row in cur.fetchall()]
-    return jsonify(result)
+    response = jsonify(result)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
