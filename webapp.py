@@ -1,7 +1,8 @@
 import sqlite3
 import config
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from functools import wraps
+from datetime import datetime, time, timedelta
 import jinja2
 
 templateLoader = jinja2.FileSystemLoader( searchpath="." )
@@ -31,17 +32,45 @@ def add_single_row(cur, query, template_vars):
         if k != 'id':
             template_vars[k] = row[k]
 
-@app.route('/')
-def main():
+
+def next_occurrence(input_time):
+    input_time = input_time[:5]
+    t = datetime.strptime(input_time, "%H:%M").time()
+    now = datetime.now()
+    next_time = datetime.combine(now.date(), t)
+    if next_time <= now:
+        next_time += timedelta(days=1)
+    return next_time.isoformat()
+
+def handle_settings_post(request):
+    fields = ['frequency', 'runtime', 'time']
+    valid = True
+    for f in fields:
+        if not f in request.form:
+            return False, f"Missing field {f}"
+    first_occurence = next_occurrence(request.form['time'])
     cur = get_cursor()
+    cur.execute("UPDATE settings SET frequency = ?, runtime = ?, first_occurence = ? WHERE id = 0", 
+                (request.form['frequency'], request.form['runtime'], first_occurence))
+    cur.connection.commit()
+    return True, "Settings updated"
+
+@app.route('/', methods=['GET', 'POST'])
+def main():
     template_vars = {
         'vbat': -1,
         'temperature': -1,
         'humidity': -1,
+        'post': False,
+        'post_valie': False
     }
+    if request.method == 'POST':
+        template_vars['post'] = True
+        template_vars['post_valid'], template_vars['post_result'] = handle_settings_post(request)
+    cur = get_cursor()
     add_single_row(cur, "SELECT * FROM readings ORDER BY timestamp DESC LIMIT 1", template_vars)
     add_single_row(cur, "SELECT * FROM status LIMIT 1", template_vars)
-    add_single_row(cur, "SELECT * FROM settings ORDER BY id DESC LIMIT 1", template_vars)
+    add_single_row(cur, "SELECT frequency, runtime, TIME(first_occurence) as time FROM settings ORDER BY id DESC LIMIT 1", template_vars)
     template = template_env.get_template( 'home.jinja' )
     return template.render( template_vars )
 

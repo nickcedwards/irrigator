@@ -1,24 +1,100 @@
- <!doctype html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+<!doctype html>
+<html lang="en">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
 
-    <title>irrigator</title>
-  </head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <body>
+  <title>irrigator</title>
+</head>
 
-  <h1>Irrigator</h1>
-  	<ul>
-		<li>Timestamp: {{timestamp}}</li>
-		<li>Battery: {{'%.1f' % vbat}}V</li>
-		<li>Temp: {{'%.1f' % temperature}}&#176;C</li>
-		<li>Humidity: {{'%.0f' % humidity}}%</li>
-	</ul>
+<body>
 
-  </body>
-  </html>
+
+  <div class="container-fluid">
+    {% if post %}
+    <div class="row mt-2">
+      <div class="col">
+      {% if not post_valid %}
+        <div class="alert alert-danger" role="alert">
+          {{post_result}}
+        </div>
+      {% else %}
+        <div class="alert alert-success" role="alert">
+          {{post_result}}
+        </div>
+      {% endif %}
+      </div>
+    </div>
+    {%endif%}
+    <div class="row">
+      <div class="col">
+        <h1>Irrigator</h1>
+        <ul>
+          <li>Timestamp: {{timestamp}}</li>
+          <li>Battery: {{'%.1f' % vbat}}V</li>
+          <li>Temp: {{'%.1f' % temperature}}&#176;C</li>
+          <li>Humidity: {{'%.0f' % humidity}}%</li>
+          <li>Pump: {{pump}}</li>
+          <li>Valve: {{valve}}</li>
+          <li>Next Action: {{next_action}} at {{next_action_at}}</li>
+          <li>Frequency: {{frequency}}</li>
+          <li>Time: {{time}}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-3">
+        <form method="POST">
+          <div class="mb-3">
+            <label for="frequency" class="form-label">Frequency</label>
+            <select class="form-control" id="frequency" name="frequency">
+            {% macro option(value, label, post_value) %}
+              <option value="{{value}}" {{ "selected" if value == post_value }}>{{label}}</option>
+            {% endmacro %}
+              {{ option("off", "Off", _frequency) }}
+              {{ option("once", "Once", frequency) }}
+              {{ option("daily", "Daily", frequency) }}
+              {{ option("every2days", "Every 2 days", frequency) }}
+              {{ option("every3days", "Every 3 days", frequency) }}
+            </select>
+          </div>
+          <div class="mb-3" style="display: {{ 'none' if frequency == 'off' else 'block'}}">
+            <label for="time" class="form-label">Time</label>
+            <input type="time" step="60" class="form-control" id="time" name="time" value="{{time}}">
+          </div>
+          <div class="mb-3" style="display: {{ 'none' if frequency == 'off' else 'block'}}">
+            <label for="runtime" class="form-label">Duration</label>
+            <input type="number" step="1" class="form-control" id="runtime" name="runtime" value="{{runtime}}">
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </div>
+
+</body>
+
+<script>
+window.onload = function() {
+  var frequencySelect = document.getElementById('frequency');
+  var timeInput = document.getElementById('time');
+  var runtimeInput = document.getElementById('runtime');
+
+  function toggleInputs() {
+    var isOff = frequencySelect.value === 'off';
+    timeInput.parentElement.style.display = isOff ? 'none' : 'block';
+    runtimeInput.parentElement.style.display = isOff ? 'none' : 'block';
+  }
+
+  frequencySelect.onchange = toggleInputs;
+  toggleInputs();  // Set initial visibility
+};
+</script>
+
+</html>
