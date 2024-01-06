@@ -1,19 +1,28 @@
-import sqlite3
-import config
 from flask import Flask, jsonify, request
+from flask_apscheduler import APScheduler
 from functools import wraps
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 import jinja2
+
+from config import get_cursor
+import irrigation_control
 
 templateLoader = jinja2.FileSystemLoader( searchpath="." )
 template_env = jinja2.Environment( loader=templateLoader )
 
 app = Flask(__name__)
 
-def get_cursor():
-    con = sqlite3.connect(config.DB)
-    con.row_factory = sqlite3.Row
-    return con.cursor()
+INTERVAL_TASK_ID = 'interval-task-id'
+
+def interval_task():
+    print("Reading")
+ 
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+
+scheduler.add_job(id=INTERVAL_TASK_ID, func=interval_task, trigger='interval', seconds=2)
+ 
 
 def return_json(f):
     @wraps(f)
@@ -44,7 +53,6 @@ def next_occurrence(input_time):
 
 def handle_settings_post(request):
     fields = ['frequency', 'runtime', 'time']
-    valid = True
     for f in fields:
         if not f in request.form:
             return False, f"Missing field {f}"
@@ -53,6 +61,8 @@ def handle_settings_post(request):
     cur.execute("UPDATE settings SET frequency = ?, runtime = ?, first_occurence = ? WHERE id = 0", 
                 (request.form['frequency'], request.form['runtime'], first_occurence))
     cur.connection.commit()
+    cur.close()
+    irrigation_control.sync_from_settings()
     return True, "Settings updated"
 
 @app.route('/', methods=['GET', 'POST'])

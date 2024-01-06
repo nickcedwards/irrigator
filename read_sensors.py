@@ -14,7 +14,7 @@ args = parser.parse_args()
 
 adc = ADS1263ADC(config.ADC_VREF, (config.VBAT_ADC_CHANNEL,))
 divider = VoltageDivider(config.VBAT_RLOW, config.VBAT_RHIGH)
-temp_humidity = DHT22TemperatureHumiditySensor(config.DHT22_PIN)
+temp_humidity = DHT22TemperatureHumiditySensor(config.DHT22_GPIO)
 
 values = adc.read()
 vsense = values[0][0]

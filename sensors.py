@@ -5,7 +5,6 @@ import Adafruit_DHT
 from datetime import datetime
 import time
 import waveshare.ADS1263 as ADS1263
-import RPi.GPIO as GPIO
 
 class DHT22TemperatureHumiditySensor:
     def __init__(self, pin):
