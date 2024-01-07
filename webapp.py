@@ -13,15 +13,12 @@ template_env = jinja2.Environment( loader=templateLoader )
 app = Flask(__name__)
 
 INTERVAL_TASK_ID = 'interval-task-id'
-
-def interval_task():
-    print("Reading")
  
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
-scheduler.add_job(id=INTERVAL_TASK_ID, func=interval_task, trigger='interval', seconds=2)
+scheduler.add_job(id=INTERVAL_TASK_ID, func=irrigation_control.check_and_update, trigger='interval', seconds=20)
  
 
 def return_json(f):
@@ -72,7 +69,6 @@ def main():
         'temperature': -1,
         'humidity': -1,
         'post': False,
-        'post_valie': False
     }
     if request.method == 'POST':
         template_vars['post'] = True
@@ -81,6 +77,8 @@ def main():
     add_single_row(cur, "SELECT * FROM readings ORDER BY timestamp DESC LIMIT 1", template_vars)
     add_single_row(cur, "SELECT * FROM status LIMIT 1", template_vars)
     add_single_row(cur, "SELECT frequency, runtime, TIME(first_occurence) as time FROM settings ORDER BY id DESC LIMIT 1", template_vars)
+    template_vars['pump'] = irrigation_control.pump.is_active
+    template_vars['valve'] = irrigation_control.valve.is_active
     template = template_env.get_template( 'home.jinja' )
     return template.render( template_vars )
 

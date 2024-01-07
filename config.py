@@ -32,6 +32,15 @@ class Frequencies(Enum):
     EveryTwoDays = "every2days"
     EveryThreeDays = "every3days"
 
+INTERVALS = {
+    Frequencies.Off.value: 0,
+    Frequencies.Once.value: 0,
+    Frequencies.Daily.value: 24,
+    Frequencies.EveryTwoDays.value: 48,
+    Frequencies.EveryThreeDays.value: 72
+
+}
+
 class Actions(Enum):
     Nothing = "None"
     TurnOn = "TurnOn"
