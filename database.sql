@@ -14,6 +14,8 @@ Create Table readings(
     vbat    	REAL
 );
 
+INSERT INTO readings (timestamp, temperature, humidity, vbat_raw, vbat) VALUES ('2024-01-13 12:34:22', 25.0, 67.7, 21.4, 23.3);
+
 Create Table settings(
     id INTEGER PRIMARY KEY,
     frequency		  TEXT,
