@@ -1,10 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, url_for
 from flask_apscheduler import APScheduler
 from functools import wraps
 from datetime import datetime, timedelta
 import jinja2
 
-from config import get_cursor
+from config import Actions, get_cursor
 import irrigation_control
 
 templateLoader = jinja2.FileSystemLoader( searchpath="." )
@@ -39,6 +39,18 @@ def add_single_row(cur, query, template_vars):
             template_vars[k] = row[k]
 
 
+def format_time(iso_string):
+    return datetime.fromisoformat(iso_string).strftime("%d/%m/%Y %H:%M:%S")
+
+def format_status(action, at):
+    if action == Actions.Nothing.name:
+        return "Off"
+    elif action == Actions.TurnOn.name:
+        return f"Turning on at {format_time(at)}"
+    elif action == Actions.TurnOff.name:
+        return f"Turning off at {format_time(at)}"
+
+
 def next_occurrence(input_time):
     input_time = input_time[:5]
     t = datetime.strptime(input_time, "%H:%M").time()
@@ -69,6 +81,7 @@ def main():
         'temperature': -1,
         'humidity': -1,
         'post': False,
+        'url_for': url_for,
     }
     if request.method == 'POST':
         template_vars['post'] = True
@@ -79,6 +92,9 @@ def main():
     add_single_row(cur, "SELECT frequency, runtime, TIME(first_occurence) as time FROM settings ORDER BY id DESC LIMIT 1", template_vars)
     template_vars['pump'] = irrigation_control.pump.is_active
     template_vars['valve'] = irrigation_control.valve.is_active
+    print(template_vars)
+    template_vars['updated'] = format_time(template_vars['timestamp'])
+    template_vars['status'] = format_status(template_vars['next_action'], template_vars['next_action_at'])
     template = template_env.get_template( 'home.jinja' )
     return template.render( template_vars )
 

@@ -3,8 +3,14 @@
 
 <head>
   <meta charset="UTF-8" />
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
     integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='irrigator.css')}}">
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+    integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
     integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
     crossorigin="anonymous"></script>
@@ -15,87 +21,152 @@
 </head>
 
 <body>
-
-
-  <div class="container-fluid">
+  <div class="container pt-2">
     {% if post %}
     <div class="row mt-2">
       <div class="col">
-      {% if not post_valid %}
+        {% if not post_valid %}
         <div class="alert alert-danger" role="alert">
           {{post_result}}
         </div>
-      {% else %}
+        {% else %}
         <div class="alert alert-success" role="alert">
           {{post_result}}
         </div>
-      {% endif %}
+        {% endif %}
       </div>
     </div>
     {%endif%}
+
     <div class="row">
       <div class="col">
-        <h1>Irrigator</h1>
-        <ul>
-          <li>Timestamp: {{timestamp}}</li>
-          <li>Battery: {{'%.1f' % vbat}}V</li>
-          <li>Temp: {{'%.1f' % temperature}}&#176;C</li>
-          <li>Humidity: {{'%.0f' % humidity}}%</li>
-          <li>Pump: {{pump}}</li>
-          <li>Valve: {{valve}}</li>
-          <li>Next Action: {{next_action}} at {{next_action_at}}</li>
-          <li>Time: {{time}}</li>
-          <li>Frequency: {{frequency}}</li>
-          <li>Duration: {{runtime}}</li>
-        </ul>
+        <div class="card">
+          <div class="card-body p-4">
+            <div class="d-flex">
+              <h1 class="flex-grow-1 title-colour">irrigator</h1>
+              <div>
+                Updated at {{updated}}<br>
+                {{status}}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-3">
-        <form method="POST">
-          <div class="mb-3">
-            <label for="frequency" class="form-label">Frequency</label>
-            <select class="form-control" id="frequency" name="frequency">
-            {% macro option(value, label, post_value) %}
-              <option value="{{value}}" {{ "selected" if value == post_value }}>{{label}}</option>
-            {% endmacro %}
-              {{ option("off", "Off", _frequency) }}
-              {{ option("once", "Once", frequency) }}
-              {{ option("daily", "Daily", frequency) }}
-              {{ option("every2days", "Every 2 days", frequency) }}
-              {{ option("every3days", "Every 3 days", frequency) }}
-            </select>
+
+    <div class="row pt-3 g-3">
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body p-4">
+
+            <div class="d-flex">
+              <h6 class="flex-grow-1 card-title">
+              <i class="fa fa-cloud-sun-rain"></i>
+              Weather</h6>
+            </div>
+
+            <div class="d-flex flex-column text-center mt-5 mb-4">
+              <h6 class="display-4 mb-0 font-weight-bold" style="color: #1C2331;"> {{'%.1f' % temperature}}&#176;C</h6>
+            </div>
+
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1" style="font-size: 1rem;">
+                <div><i class="fas fa-tint fa-fw" style="color: #5074b6;"></i> <span class="ms-1">{{'%.0f' % humidity}}%
+                  </span></div>
+              </div>
+            </div>
           </div>
-          <div class="mb-3" style="display: {{ 'none' if frequency == 'off' else 'block'}}">
-            <label for="time" class="form-label">Time</label>
-            <input type="time" step="60" class="form-control" id="time" name="time" value="{{time}}">
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body p-4">
+
+            <div class="d-flex">
+              <h6 class="flex-grow-1 card-title">
+              <i class="fas fa-car-battery"></i>
+              Battery</h6>
+            </div>
+
+            <div class="d-flex flex-column text-center mt-5 mb-4">
+              <h6 class="display-4 mb-0 font-weight-bold" style="color: #1C2331;"> {{'%.1f' % vbat}}V</h6>
+            </div>
           </div>
-          <div class="mb-3" style="display: {{ 'none' if frequency == 'off' else 'block'}}">
-            <label for="runtime" class="form-label">Duration</label>
-            <input type="number" step="1" class="form-control" id="runtime" name="runtime" value="{{runtime}}">
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body p-4">
+
+            <div class="d-flex">
+              <h6 class="flex-grow-1 card-title">
+              <i class="fas fa-water"></i>
+              Irrigation Control</h6>
+            </div>
+
+            <div class="d-flex flex-column text-center mt-5 mb-4">
+              <h6 class="display-6 mb-0 font-weight-bold" style="color: #1C2331;">Pump: {{"On" if pump else "Off"}}</h6>
+              <h6 class="display-6 mb-0 font-weight-bold" style="color: #1C2331;">Valve: {{"On" if valve else "Off"}}</h6>
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary">Save</button>
-        </form>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row pt-3">
+      <div class="col">
+        <div class="card">
+          <div class="card-body p-4">
+          <h2 class="title-colour">Settings</h2>
+            <form method="POST">
+              <div class="mb-3">
+                <label for="frequency" class="form-label">Frequency</label>
+                <select class="form-control" id="frequency" name="frequency">
+                  {% macro option(value, label, post_value) %}
+                  <option value="{{value}}" {{ "selected" if value==post_value }}>{{label}}</option>
+                  {% endmacro %}
+                  {{ option("off", "Off", _frequency) }}
+                  {{ option("once", "Once", frequency) }}
+                  {{ option("daily", "Daily", frequency) }}
+                  {{ option("every2days", "Every 2 days", frequency) }}
+                  {{ option("every3days", "Every 3 days", frequency) }}
+                </select>
+              </div>
+              <div class="mb-3" style="display: {{ 'none' if frequency == 'off' else 'block'}}">
+                <label for="time" class="form-label">Time</label>
+                <input type="time" step="60" class="form-control" id="time" name="time" value="{{time}}">
+              </div>
+              <div class="mb-3" style="display: {{ 'none' if frequency == 'off' else 'block'}}">
+                <label for="runtime" class="form-label">Duration</label>
+                <input type="number" step="1" class="form-control" id="runtime" name="runtime" value="{{runtime}}">
+              </div>
+              <button type="submit" class="btn btn-secondary">Save</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
 </body>
 
 <script>
-window.onload = function() {
-  var frequencySelect = document.getElementById('frequency');
-  var timeInput = document.getElementById('time');
-  var runtimeInput = document.getElementById('runtime');
+  window.onload = function () {
+    var frequencySelect = document.getElementById('frequency');
+    var timeInput = document.getElementById('time');
+    var runtimeInput = document.getElementById('runtime');
 
-  function toggleInputs() {
-    var isOff = frequencySelect.value === 'off';
-    timeInput.parentElement.style.display = isOff ? 'none' : 'block';
-    runtimeInput.parentElement.style.display = isOff ? 'none' : 'block';
-  }
+    function toggleInputs() {
+      var isOff = frequencySelect.value === 'off';
+      timeInput.parentElement.style.display = isOff ? 'none' : 'block';
+      runtimeInput.parentElement.style.display = isOff ? 'none' : 'block';
+    }
 
-  frequencySelect.onchange = toggleInputs;
-  toggleInputs();  // Set initial visibility
-};
+    frequencySelect.onchange = toggleInputs;
+    toggleInputs();  // Set initial visibility
+  };
 </script>
 
 </html>

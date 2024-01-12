@@ -1,0 +1,18 @@
+body {
+    /*background-color: #4B515D;*/
+    background-color: #eee;
+    color: #4B515D;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.title-colour {
+    color: #00892d;
+}
