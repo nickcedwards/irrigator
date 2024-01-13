@@ -49,6 +49,7 @@ def format_status(action, at):
         return f"Turning on at {format_time(at)}"
     elif action == Actions.TurnOff.name:
         return f"Turning off at {format_time(at)}"
+    return action
 
 
 def next_occurrence(input_time):

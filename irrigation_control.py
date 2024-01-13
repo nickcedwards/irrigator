@@ -31,7 +31,7 @@ def check_and_update():
     runtime = row['runtime']
 
     run_irrigation = False
-    new_action = None
+    new_action = Actions.Nothing.value
     if action == Actions.TurnOff.value:
         if at > datetime.now():
             run_irrigation = True
