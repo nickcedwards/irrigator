@@ -43,11 +43,11 @@ def format_time(iso_string):
     return datetime.fromisoformat(iso_string).strftime("%d/%m/%Y %H:%M:%S")
 
 def format_status(action, at):
-    if action == Actions.Nothing.name:
+    if action == Actions.Nothing.value:
         return "Off"
-    elif action == Actions.TurnOn.name:
+    elif action == Actions.TurnOn.value:
         return f"Turning on at {format_time(at)}"
-    elif action == Actions.TurnOff.name:
+    elif action == Actions.TurnOff.value:
         return f"Turning off at {format_time(at)}"
     return action
 
