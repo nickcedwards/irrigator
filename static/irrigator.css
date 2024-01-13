@@ -13,6 +13,24 @@ body {
     font-weight: 700;
 }
 
+.title-main {
+    color: #00892d;
+    font-size: 1.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.updated {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: auto;
+}
+
 .title-colour {
     color: #00892d;
+}
+
+.status {
+    font-size: 1.1rem;
+    font-weight: 500;
 }
